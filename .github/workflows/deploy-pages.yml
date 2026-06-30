@@ -1,0 +1,80 @@
+name: Deploy to GitHub Pages
+
+on:
+  push:
+    branches:
+      - master
+  workflow_dispatch:
+
+# Allow the workflow to deploy to GitHub Pages
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# Allow one concurrent deployment, don't cancel an in-progress one
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+env:
+  # Serve from a custom domain root. Leave empty to fall back to the default
+  # <user>.github.io/<repo>/ project page (built under the /<repo>/ base path).
+  CUSTOM_DOMAIN: excalidraw.bohachevskyi.com
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: 20.x
+
+      - name: Setup Pages
+        uses: actions/configure-pages@v5
+
+      - name: Compute base path
+        id: base
+        # A custom domain (or user/org page) is served from /, a project page
+        # from /<repo>/
+        run: |
+          if [ -n "$CUSTOM_DOMAIN" ]; then
+            echo "path=/" >> "$GITHUB_OUTPUT"
+          else
+            repo="${{ github.event.repository.name }}"
+            owner="$(echo "${{ github.repository_owner }}" | tr '[:upper:]' '[:lower:]')"
+            if [ "$(echo "$repo" | tr '[:upper:]' '[:lower:]')" = "${owner}.github.io" ]; then
+              echo "path=/" >> "$GITHUB_OUTPUT"
+            else
+              echo "path=/$repo/" >> "$GITHUB_OUTPUT"
+            fi
+          fi
+
+      - name: Install dependencies
+        run: yarn install
+
+      - name: Build app
+        run: yarn --cwd excalidraw-app build:app:docker --base="${{ steps.base.outputs.path }}"
+
+      - name: Set custom domain (CNAME)
+        if: env.CUSTOM_DOMAIN != ''
+        run: echo "$CUSTOM_DOMAIN" > excalidraw-app/build/CNAME
+
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: excalidraw-app/build
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
