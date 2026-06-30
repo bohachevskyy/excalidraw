@@ -47,7 +47,7 @@ import {
   share,
   youtubeIcon,
 } from "@excalidraw/excalidraw/components/icons";
-import { isElementLink } from "@excalidraw/element";
+import { isElementLink, hashElementsVersion } from "@excalidraw/element";
 import {
   bumpElementVersions,
   restoreAppState,
@@ -100,6 +100,11 @@ import Collab, {
 } from "./collab/Collab";
 import { AppFooter } from "./components/AppFooter";
 import { AppMainMenu } from "./components/AppMainMenu";
+import {
+  RecentFilesDialog,
+  savedSceneHashAtom,
+} from "./components/RecentFilesDialog";
+import { addRecentFile } from "./data/recentFiles";
 import { AppWelcomeScreen } from "./components/AppWelcomeScreen";
 import {
   ExportToExcalidrawPlus,
@@ -395,6 +400,10 @@ const ExcalidrawWrapper = () => {
 
   const debugCanvasRef = useRef<HTMLCanvasElement>(null);
 
+  // last local file handle we recorded into the "recent files" list, used to
+  // detect when the active file switches (open / save-as / open-recent)
+  const lastFileHandleRef = useRef<FileSystemFileHandle | null>(null);
+
   useEffect(() => {
     trackEvent("load", "frame", getFrame());
     // Delayed so that the app has a time to load the latest SW
@@ -681,6 +690,21 @@ const ExcalidrawWrapper = () => {
   ) => {
     if (collabAPI?.isCollaborating()) {
       collabAPI.syncElements(elements);
+    }
+
+    // When the active local file switches (opened, saved-as, or opened from
+    // "recent files"), record it and snapshot the scene hash as the saved
+    // baseline used to detect unsaved changes before switching files later.
+    if (
+      appState.fileHandle &&
+      appState.fileHandle !== lastFileHandleRef.current
+    ) {
+      lastFileHandleRef.current = appState.fileHandle;
+      addRecentFile(appState.fileHandle);
+      appJotaiStore.set(
+        savedSceneHashAtom,
+        hashElementsVersion(excalidrawAPI?.getSceneElements() ?? elements),
+      );
     }
 
     // this check is redundant, but since this is a hot path, it's best
@@ -1057,6 +1081,8 @@ const ExcalidrawWrapper = () => {
         />
 
         <AppSidebar />
+
+        {excalidrawAPI && <RecentFilesDialog excalidrawAPI={excalidrawAPI} />}
 
         {errorMessage && (
           <ErrorDialog onClose={() => setErrorMessage("")}>

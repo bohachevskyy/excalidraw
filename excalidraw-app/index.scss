@@ -128,3 +128,135 @@
     }
   }
 }
+
+.RecentFiles {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+
+  &__empty {
+    padding: 1.5rem 0.5rem;
+    text-align: center;
+    color: var(--color-gray-60);
+    font-size: 0.875rem;
+  }
+
+  &__list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+    max-height: 22rem;
+    overflow-y: auto;
+  }
+
+  &__item {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+  }
+
+  &__open {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    gap: 0.625rem;
+    min-width: 0;
+    padding: 0.5rem 0.625rem;
+    border: none;
+    border-radius: var(--border-radius-lg);
+    background-color: transparent;
+    color: var(--text-primary-color);
+    cursor: pointer;
+    text-align: start;
+
+    &:hover {
+      background-color: var(--button-hover-bg, var(--color-surface-high));
+    }
+
+    &:disabled {
+      cursor: default;
+      opacity: 0.5;
+    }
+  }
+
+  &__icon svg {
+    width: 1rem;
+    height: 1rem;
+  }
+
+  &__name {
+    flex: 1;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  &__time {
+    flex-shrink: 0;
+    font-size: 0.75rem;
+    color: var(--color-gray-60);
+  }
+
+  &__remove {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.375rem;
+    border: none;
+    border-radius: var(--border-radius-lg);
+    background-color: transparent;
+    color: var(--color-gray-60);
+    cursor: pointer;
+
+    svg {
+      width: 1rem;
+      height: 1rem;
+    }
+
+    &:hover {
+      background-color: var(--color-surface-high);
+      color: var(--color-danger);
+    }
+  }
+
+  &__footer {
+    display: flex;
+    justify-content: flex-end;
+    padding-top: 0.25rem;
+  }
+
+  &__clear {
+    border: none;
+    background: transparent;
+    color: var(--color-danger);
+    cursor: pointer;
+    font-size: 0.8125rem;
+    padding: 0.25rem 0.5rem;
+
+    &:hover {
+      text-decoration: underline;
+    }
+  }
+}
+
+.RecentFiles__confirm {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+
+  p {
+    margin: 0;
+    line-height: 1.5;
+  }
+
+  &-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    justify-content: flex-end;
+  }
+}
