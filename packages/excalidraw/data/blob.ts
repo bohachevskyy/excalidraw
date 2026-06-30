@@ -522,6 +522,11 @@ export const normalizeFile = async (file: File) => {
     return file;
   }
 
+  // recreating the `File` below (to fix the mimeType) drops any
+  // `FileSystemFileHandle` that was attached to it (e.g. by `fileOpen`), so we
+  // preserve it and reattach it to the normalized file
+  const fileHandle = (file as any).handle as FileSystemFileHandle | undefined;
+
   if (file?.name?.endsWith(".excalidrawlib")) {
     file = createFile(file, MIME_TYPES.excalidrawlib, file.name);
   } else if (file?.name?.endsWith(".excalidraw")) {
@@ -534,6 +539,10 @@ export const normalizeFile = async (file: File) => {
     if (mimeType && mimeType !== file.type) {
       file = createFile(file, mimeType, file.name);
     }
+  }
+
+  if (fileHandle && !(file as any).handle) {
+    (file as any).handle = fileHandle;
   }
 
   (file as any)[normalizedFileSymbol] = true;

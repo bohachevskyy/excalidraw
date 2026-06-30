@@ -1,4 +1,23 @@
 {
+  "recentFiles": {
+    "menuItem": "Recent files",
+    "title": "Recent files",
+    "empty": "No recent files yet. Files you open or save to disk will appear here.",
+    "remove": "Remove from list",
+    "clearAll": "Clear all",
+    "justNow": "just now",
+    "minutesAgo": "{{count}}m ago",
+    "hoursAgo": "{{count}}h ago",
+    "daysAgo": "{{count}}d ago",
+    "unsavedTitle": "Unsaved changes",
+    "unsavedChanges": "You have unsaved changes in \"{{name}}\". Save them before opening another file?",
+    "saveAndOpen": "Save & open",
+    "openWithoutSaving": "Open without saving",
+    "cancel": "Cancel",
+    "permissionDenied": "Permission to read the file was denied.",
+    "openError": "Couldn't open this file. It may have been moved, renamed, or deleted.",
+    "saveError": "Couldn't save the current file."
+  },
   "labels": {
     "paste": "Paste",
     "pasteAsPlaintext": "Paste as plaintext",
